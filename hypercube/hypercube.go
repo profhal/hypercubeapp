@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-// A dimension-D hypercube has 2^{dimension} nodes. So, nodeCount = 2^{dimension} and the nodes
+// A dimension-D hypercube has 2^{dimesion} nodes. So, nodeCount = 2^{dimension} and the nodes
 // slice is nodeCount long once the hypercube is initialized.
 type Hypercube struct {
 	dimension int
@@ -61,7 +61,8 @@ func CreateHypercube(dimension int) *Hypercube {
 // Runs the hypercube task.
 //
 // At the moment this exists so that we can time the creation and investigate
-// memory use.
+// memory use. That is, we need something public to reference so that we can
+// use a hypercube object to satisfy compilation.
 func (h *Hypercube) Run() {
 
 	fmt.Println("Hypercube is starting it's task.")
