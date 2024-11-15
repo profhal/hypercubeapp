@@ -37,11 +37,17 @@ func main() {
 
 	fmt.Println("Kicking off hypercube...")
 
-	hCube.Run()
+	dummy := 1
+
+	for dummy > 0 {
+
+		if dummy == 1 {
+			hCube.Run()
+			dummy++
+		}
+
+	}
 
 	fmt.Println()
-
-	fmt.Print("::Press enter to shut down the hypercube::")
-	fmt.Scanln()
 
 }

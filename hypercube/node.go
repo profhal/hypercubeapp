@@ -2,6 +2,7 @@ package hypercube
 
 import (
 	"fmt"
+	"time"
 )
 
 // var n Node = Node{5, make([]*Node, 0, 5)}
@@ -26,6 +27,8 @@ func (n *node) start() {
 				for nbr := 0; nbr < n.dimension; nbr++ {
 
 					n.neighbors[nbr].inputQ <- n.id
+
+					time.Sleep(10 * time.Millisecond)
 
 				}
 
