@@ -2,7 +2,6 @@ package hypercube
 
 import (
 	"math"
-	"sync"
 )
 
 // A dimension-D hypercube has 2^{dimesion} nodes. So, nodeCount = 2^{dimension} and the nodes
@@ -11,7 +10,6 @@ type Hypercube struct {
 	dimension int
 	nodeCount int
 	nodes     []*node
-	waitGP    sync.WaitGroup
 }
 
 // Returns a pointer to a dimension-D hypercube.
