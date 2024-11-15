@@ -1,8 +1,8 @@
 package hypercube
 
 import (
-	"fmt"
 	"math"
+	"sync"
 )
 
 // A dimension-D hypercube has 2^{dimesion} nodes. So, nodeCount = 2^{dimension} and the nodes
@@ -11,6 +11,7 @@ type Hypercube struct {
 	dimension int
 	nodeCount int
 	nodes     []*node
+	waitGP    sync.WaitGroup
 }
 
 // Returns a pointer to a dimension-D hypercube.
@@ -29,8 +30,12 @@ func CreateHypercube(dimension int) *Hypercube {
 
 		hypercube.nodes = append(hypercube.nodes, new(node))
 
+		hypercube.nodes[n].id = n
 		hypercube.nodes[n].dimension = hypercube.dimension
 		hypercube.nodes[n].neighbors = make([]*node, 0, dimension)
+		hypercube.nodes[n].inputQ = make(chan int)
+
+		hypercube.nodes[n].start()
 
 	}
 
@@ -65,8 +70,6 @@ func CreateHypercube(dimension int) *Hypercube {
 // use a hypercube object to satisfy compilation.
 func (h *Hypercube) Run() {
 
-	fmt.Println("Hypercube is starting it's task.")
-
-	fmt.Println("Hypercube has finished it's task.")
+	h.nodes[0].inputQ <- -1
 
 }
