@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"hypercubeapp/hypercube"
+	"math"
 	"strconv"
 	"time"
 )
@@ -35,17 +36,28 @@ func main() {
 
 	fmt.Println()
 
-	fmt.Println("Kicking off hypercube...")
+	nodeToTouch := 0
 
-	dummy := 1
+	for nodeToTouch > -1 {
 
-	for dummy > 0 {
+		nodeToTouch = -2
 
-		if dummy == 1 {
-			hCube.Run()
-			dummy++
+		fmt.Println("What node would you like to touch?")
+
+		for nodeToTouch < -1 || nodeToTouch > (int)(math.Pow(2, float64(dimension))-1) {
+
+			fmt.Print("Enter a node number (0, ", (int)(math.Pow(2, float64(dimension))-1), ") or -1 to quit: ")
+			fmt.Scan(&nodeToTouch)
+
 		}
 
+		if nodeToTouch > -1 {
+
+			fmt.Println("Touching node", nodeToTouch, "...")
+
+			hCube.Touch(nodeToTouch)
+
+		}
 	}
 
 	fmt.Println()

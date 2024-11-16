@@ -2,7 +2,7 @@ package hypercube
 
 import (
 	"fmt"
-	"time"
+	"strconv"
 )
 
 // var n Node = Node{5, make([]*Node, 0, 5)}
@@ -13,7 +13,7 @@ type node struct {
 	inputQ    chan int
 }
 
-func (n *node) start() {
+func (n *node) start(master Master, finishedValue int) {
 
 	go func() {
 
@@ -22,16 +22,37 @@ func (n *node) start() {
 			select {
 			case fromNode := <-n.inputQ:
 
-				fmt.Println(n.id, "heard from", fromNode)
+				switch fromNode {
+				case -1:
 
-				for nbr := 0; nbr < n.dimension; nbr++ {
+					fmt.Println(n.id, " initiaiting conversation...")
 
-					n.neighbors[nbr].inputQ <- n.id
+					for nbr := 0; nbr < n.dimension; nbr++ {
 
-					time.Sleep(10 * time.Millisecond)
+						n.neighbors[nbr].inputQ <- n.id
+
+						fromNode = <-n.inputQ
+
+						fmt.Println(n.id, "heard back from", strconv.Itoa(fromNode)+".")
+					}
+
+					master.AcceptMessage(finishedValue)
+
+				default:
+
+					fmt.Println(n.id, " heard from ", strconv.Itoa(fromNode)+". Responding.")
+
+					for nbr := 0; nbr < n.dimension; nbr++ {
+
+						if n.neighbors[nbr].id == fromNode {
+
+							n.neighbors[nbr].inputQ <- n.id
+
+						}
+
+					}
 
 				}
-
 			}
 
 		}
