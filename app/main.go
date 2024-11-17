@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hypercubeapp/network"
 	"math"
+	"os"
 	"strconv"
 	"time"
 )
@@ -210,11 +211,30 @@ func doRing() {
 
 }
 
+func doQuit() {
+
+	fmt.Println()
+	fmt.Println("Goodbye")
+	fmt.Println()
+
+	os.Exit(0)
+
+}
+
 func main() {
 
-	option := 1
+	var actionMap map[int]func() = map[int]func(){
+		0: doQuit,
+		1: doHypercube,
+		2: doGrid,
+		3: doRing,
+	}
 
-	for option != 0 {
+	var option int
+
+	for {
+
+		option = -1
 
 		fmt.Println("Choose a configuration to build.")
 		fmt.Println("0. Quit")
@@ -225,22 +245,17 @@ func main() {
 		fmt.Print("Enter option: ")
 		fmt.Scan(&option)
 
-		switch option {
-		case 0:
+		action, ok := actionMap[option]
+
+		if ok {
+			action()
+		} else {
 			fmt.Println()
-			fmt.Println("Goodbye.")
+			fmt.Println("Invalid option:", strconv.Itoa(option)+". Try again.")
 			fmt.Println()
-		case 1:
-			doHypercube()
-		case 2:
-			doGrid()
-		case 3:
-			doRing()
-		default:
-			fmt.Println()
-			fmt.Println("Invalid option. Try again.")
-			fmt.Println()
+
 		}
 
 	}
+
 }
