@@ -37,39 +37,47 @@ func (n *gridNode) Start(master Master, finishedMsg string) {
 
 					fmt.Println(n.id, " initiaiting conversation...")
 
-					n.right.inputQ <- n.id
-					fromNode = <-n.inputQ
-					fmt.Println(n.id, "heard back from", fromNode+".")
+					if n.right != nil {
+						n.right.inputQ <- n.id
+						fromNode = <-n.inputQ
+						fmt.Println(n.id, "heard back from", fromNode+".")
+					}
 
-					n.up.inputQ <- n.id
-					fromNode = <-n.inputQ
-					fmt.Println(n.id, "heard back from", fromNode+".")
+					if n.up != nil {
+						n.up.inputQ <- n.id
+						fromNode = <-n.inputQ
+						fmt.Println(n.id, "heard back from", fromNode+".")
+					}
 
-					n.left.inputQ <- n.id
-					fromNode = <-n.inputQ
-					fmt.Println(n.id, "heard back from", fromNode+".")
+					if n.left != nil {
+						n.left.inputQ <- n.id
+						fromNode = <-n.inputQ
+						fmt.Println(n.id, "heard back from", fromNode+".")
+					}
 
-					n.down.inputQ <- n.id
-					fromNode = <-n.inputQ
-					fmt.Println(n.id, "heard back from", fromNode+".")
-
+					if n.down != nil {
+						n.down.inputQ <- n.id
+						fromNode = <-n.inputQ
+						fmt.Println(n.id, "heard back from", fromNode+".")
+					}
 					master.NodeFinished()
 
 				default:
 
 					fmt.Println(n.id, " heard from ", fromNode+". Responding.")
 
-					switch fromNode {
-					case n.right.id:
+					if n.right != nil && n.right.id == fromNode {
 						n.right.inputQ <- n.id
-					case n.up.id:
+					} else if n.up != nil && n.up.id == fromNode {
 						n.up.inputQ <- n.id
-					case n.left.id:
+					} else if n.left != nil && n.left.id == fromNode {
 						n.left.inputQ <- n.id
-					case n.down.id:
+					} else if n.down != nil && n.down.id == fromNode {
 						n.down.inputQ <- n.id
 					}
+
 				}
+
 			}
 
 		}

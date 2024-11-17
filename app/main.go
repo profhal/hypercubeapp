@@ -98,28 +98,28 @@ func doGrid() {
 
 	rowToTouch := 1
 
-	for rowToTouch > 0 {
+	for rowToTouch > -1 {
 
-		rowToTouch = 0
-		colToTouch := 0
+		rowToTouch = -2
+		colToTouch := -2
 
 		fmt.Println("What node would you like to touch? Rows 0 -", rows-1, ". Cols 0 -", cols-1)
 
-		for (rowToTouch < 0 || rowToTouch > rows-1) || (colToTouch < 1 || colToTouch > cols-1) {
+		for (rowToTouch < -1 || rowToTouch > rows-1) || (colToTouch < -1 || colToTouch > cols-1) {
 
-			fmt.Print("Enter a node number x y (enter 0 for row to quit): ")
+			fmt.Print("Enter a node number x y (enter -1 -1 to quit): ")
 			fmt.Scan(&rowToTouch)
 			fmt.Scan(&colToTouch)
 
-			if (rowToTouch < 0 || rowToTouch > rows-1) || (colToTouch < 1 || colToTouch > cols-1) {
+			if (rowToTouch < -1 || rowToTouch > rows-1) || (colToTouch < 0 || colToTouch > cols-1) {
 
-				fmt.Println("Rows 0 -", rows-1, ". Cols 0 -", cols-1)
+				fmt.Println("Rows 0 -", rows-1, ":: Cols 0 -", cols-1)
 
 			}
 
 		}
 
-		if rowToTouch == 0 {
+		if rowToTouch == -1 {
 
 			break
 
