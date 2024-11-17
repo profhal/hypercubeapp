@@ -1,7 +1,8 @@
-package hypercube
+package network
 
 import (
 	"math"
+	"strconv"
 )
 
 // A dimension-D hypercube has 2^{dimesion} nodes. So, nodeCount = 2^{dimension} and the nodes
@@ -11,7 +12,7 @@ type Hypercube struct {
 	dimension int
 	nodeCount int
 	nodes     []*node
-	inputQ    chan int
+	inputQ    chan string
 }
 
 // Returns a pointer to a dimension-D hypercube.
@@ -23,7 +24,7 @@ func CreateHypercube(dimension int) *Hypercube {
 
 	hypercube.dimension = dimension
 	hypercube.nodeCount = int(math.Pow(2, float64(dimension)))
-	hypercube.inputQ = make(chan int)
+	hypercube.inputQ = make(chan string)
 
 	hypercube.nodes = make([]*node, 0, hypercube.nodeCount)
 
@@ -31,12 +32,12 @@ func CreateHypercube(dimension int) *Hypercube {
 
 		hypercube.nodes = append(hypercube.nodes, new(node))
 
-		hypercube.nodes[n].id = n
-		hypercube.nodes[n].dimension = hypercube.dimension
+		hypercube.nodes[n].id = strconv.Itoa(n)
+		hypercube.nodes[n].neighborCount = hypercube.dimension
 		hypercube.nodes[n].neighbors = make([]*node, 0, hypercube.dimension)
-		hypercube.nodes[n].inputQ = make(chan int, hypercube.dimension)
+		hypercube.nodes[n].inputQ = make(chan string, hypercube.dimension)
 
-		hypercube.nodes[n].start(hypercube, 0)
+		hypercube.nodes[n].start(hypercube, "0")
 
 	}
 
@@ -65,18 +66,14 @@ func CreateHypercube(dimension int) *Hypercube {
 }
 
 // Runs the hypercube task.
-//
-// At the moment this exists so that we can time the creation and investigate
-// memory use. That is, we need something public to reference so that we can
-// use a hypercube object to satisfy compilation.
 func (h *Hypercube) Touch(nodeId int) {
 
-	h.nodes[nodeId].inputQ <- -1
+	h.nodes[nodeId].inputQ <- "-1"
 
 	<-h.inputQ
 
 }
 
-func (h *Hypercube) AcceptMessage(msg int) {
+func (h *Hypercube) AcceptMessage(msg string) {
 	h.inputQ <- msg
 }

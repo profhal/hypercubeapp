@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"hypercubeapp/hypercube"
+	"hypercubeapp/network"
 	"math"
 	"strconv"
 	"time"
 )
 
-func main() {
+func doHypercube() {
 
 	dimension := -1
 
@@ -28,7 +28,7 @@ func main() {
 
 	start := time.Now()
 
-	hCube := hypercube.CreateHypercube(dimension)
+	hCube := network.CreateHypercube(dimension)
 
 	elapsed := time.Since(start)
 
@@ -62,4 +62,108 @@ func main() {
 
 	fmt.Println()
 
+}
+
+func doGrid() {
+
+	rows := -1
+	cols := -1
+
+	fmt.Print("Enter the number of rows and cols (e.g. 3 2): ")
+	fmt.Scan(&rows)
+	fmt.Scan(&cols)
+
+	for rows < 1 || cols < 1 {
+
+		fmt.Println("Dimensions must be positive.")
+		fmt.Print("Try again. Enter the number of rows and cols (e.g. 3 2): ")
+		fmt.Scan(&rows)
+		fmt.Scan(&cols)
+
+	}
+
+	fmt.Println()
+
+	fmt.Print("Building " + strconv.Itoa(rows) + "x" + strconv.Itoa(cols) + " grid ... ")
+
+	start := time.Now()
+
+	grid := network.CreateGrid(rows, cols)
+
+	elapsed := time.Since(start)
+
+	fmt.Println("It took", elapsed, "to build.")
+
+	fmt.Println()
+
+	rowToTouch := 1
+
+	for rowToTouch > 0 {
+
+		rowToTouch = 0
+		colToTouch := 0
+
+		fmt.Println("What node would you like to touch? Rows 0 -", rows-1, ". Cols 0 -", cols-1)
+
+		for (rowToTouch < 0 || rowToTouch > rows-1) || (colToTouch < 1 || colToTouch > cols-1) {
+
+			fmt.Print("Enter a node number x y (enter 0 for row to quit): ")
+			fmt.Scan(&rowToTouch)
+			fmt.Scan(&colToTouch)
+
+			if (rowToTouch < 0 || rowToTouch > rows-1) || (colToTouch < 1 || colToTouch > cols-1) {
+
+				fmt.Println("Rows 0 -", rows-1, ". Cols 0 -", cols-1)
+
+			}
+
+		}
+
+		if rowToTouch == 0 {
+
+			break
+
+		} else if rowToTouch > 0 {
+
+			fmt.Println("Touching node (" + strconv.Itoa(rowToTouch) + ", " + strconv.Itoa(colToTouch) + ") ...")
+
+			grid.Touch(rowToTouch, colToTouch)
+
+		}
+	}
+
+	fmt.Println()
+
+}
+
+func main() {
+
+	option := 0
+
+	for option != 3 {
+
+		fmt.Println("Choose a configuration to build.")
+		fmt.Println("1. Hypercube")
+		fmt.Println("2. Grid")
+		fmt.Println("3. Quit")
+		fmt.Println("--------------------------------")
+		fmt.Print("Enter option: ")
+		fmt.Scan(&option)
+
+		switch option {
+		case 1:
+			doHypercube()
+		case 2:
+			doGrid()
+		case 3:
+			fmt.Println()
+			fmt.Println("Goodbye.")
+			fmt.Println()
+		default:
+			fmt.Println()
+			fmt.Println("Invalid option. Try again.")
+			fmt.Println()
+		}
+
+	}
 }

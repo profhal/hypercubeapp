@@ -1,19 +1,18 @@
-package hypercube
+package network
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // var n Node = Node{5, make([]*Node, 0, 5)}
 type node struct {
-	id        int
-	dimension int
-	neighbors []*node
-	inputQ    chan int
+	id            string
+	neighbors     []*node
+	neighborCount int
+	inputQ        chan string
 }
 
-func (n *node) start(master Master, finishedValue int) {
+func (n *node) start(master Master, finishedValue string) {
 
 	go func() {
 
@@ -23,26 +22,26 @@ func (n *node) start(master Master, finishedValue int) {
 			case fromNode := <-n.inputQ:
 
 				switch fromNode {
-				case -1:
+				case "-1":
 
 					fmt.Println(n.id, " initiaiting conversation...")
 
-					for nbr := 0; nbr < n.dimension; nbr++ {
+					for nbr := 0; nbr < n.neighborCount; nbr++ {
 
 						n.neighbors[nbr].inputQ <- n.id
 
 						fromNode = <-n.inputQ
 
-						fmt.Println(n.id, "heard back from", strconv.Itoa(fromNode)+".")
+						fmt.Println(n.id, "heard back from", fromNode+".")
 					}
 
 					master.AcceptMessage(finishedValue)
 
 				default:
 
-					fmt.Println(n.id, " heard from ", strconv.Itoa(fromNode)+". Responding.")
+					fmt.Println(n.id, " heard from ", fromNode+". Responding.")
 
-					for nbr := 0; nbr < n.dimension; nbr++ {
+					for nbr := 0; nbr < n.neighborCount; nbr++ {
 
 						if n.neighbors[nbr].id == fromNode {
 
