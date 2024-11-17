@@ -29,7 +29,6 @@ func CreateRing(nodeCount int) *Ring {
 		ring.nodes[n].id = strconv.Itoa(n)
 
 		ring.nodes[n].neighborCount = 2
-		ring.nodes[n].neighbors = make([]*ringNode, 2)
 		ring.nodes[n].inputQ = make(chan string, 2)
 
 		ring.nodes[n].Start(ring, "0")
@@ -42,18 +41,18 @@ func CreateRing(nodeCount int) *Ring {
 
 		if n == 0 {
 
-			ring.nodes[n].neighbors[ring_left] = ring.nodes[ring.nodeCount-1]
-			ring.nodes[n].neighbors[ring_right] = ring.nodes[n+1]
+			ring.nodes[n].left = ring.nodes[ring.nodeCount-1]
+			ring.nodes[n].right = ring.nodes[n+1]
 
 		} else if n == ring.nodeCount-1 {
 
-			ring.nodes[n].neighbors[ring_left] = ring.nodes[n-1]
-			ring.nodes[n].neighbors[ring_right] = ring.nodes[0]
+			ring.nodes[n].left = ring.nodes[n-1]
+			ring.nodes[n].right = ring.nodes[0]
 
 		} else {
 
-			ring.nodes[n].neighbors[ring_left] = ring.nodes[n-1]
-			ring.nodes[n].neighbors[ring_right] = ring.nodes[n+1]
+			ring.nodes[n].left = ring.nodes[n-1]
+			ring.nodes[n].right = ring.nodes[n+1]
 
 		}
 
@@ -72,6 +71,6 @@ func (r *Ring) Loop(startWith int, direction string) {
 
 }
 
-func (r *Ring) AcceptMessage(msg string) {
-	r.inputQ <- msg
+func (r *Ring) NodeFinished() {
+	r.inputQ <- "done"
 }

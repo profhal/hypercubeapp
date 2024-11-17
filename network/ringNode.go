@@ -5,15 +5,11 @@ import (
 	"strings"
 )
 
-const (
-	ring_left  = 0
-	ring_right = 1
-)
-
 // var n Node = Node{5, make([]*Node, 0, 5)}
 type ringNode struct {
 	id            string
-	neighbors     []*ringNode
+	left          *ringNode
+	right         *ringNode
 	neighborCount int
 	inputQ        chan string
 }
@@ -40,21 +36,21 @@ func (n *ringNode) Start(master Master, finishedMsg string) {
 
 					fmt.Println(n.id, "starting left-wise loop...")
 
-					n.neighbors[ring_left].inputQ <- "left " + n.id
+					n.left.inputQ <- "left " + n.id
 
 					<-n.inputQ
 
-					master.AcceptMessage(finishedMsg)
+					master.NodeFinished()
 
 				case "right":
 
 					fmt.Println(n.id, "starting right-wise loop...")
 
-					n.neighbors[ring_right].inputQ <- "right " + n.id
+					n.right.inputQ <- "right " + n.id
 
 					<-n.inputQ
 
-					master.AcceptMessage(finishedMsg)
+					master.NodeFinished()
 
 				default:
 
@@ -63,17 +59,15 @@ func (n *ringNode) Start(master Master, finishedMsg string) {
 					// wait for a response.
 					directionAndSender := strings.Split(msg, " ")
 
-					fmt.Println(directionAndSender)
-
-					fmt.Println(n.id, " heard from ", directionAndSender[1]+". Responding.")
+					fmt.Println(n.id, " heard from", directionAndSender[1]+". Responding.")
 
 					if directionAndSender[0] == "left" {
 
-						n.neighbors[ring_left].inputQ <- "left " + n.id
+						n.left.inputQ <- "left " + n.id
 
 					} else {
 
-						n.neighbors[ring_left].inputQ <- "right " + n.id
+						n.right.inputQ <- "right " + n.id
 
 					}
 

@@ -27,10 +27,10 @@ func (n *hypercubeNode) Start(master Master, finishedMsg string) {
 		for {
 
 			select {
-			case fromNode := <-n.inputQ:
+			case msg := <-n.inputQ:
 
-				switch fromNode {
-				case "-1":
+				switch msg {
+				case "start":
 
 					fmt.Println(n.id, " initiaiting conversation...")
 
@@ -38,20 +38,20 @@ func (n *hypercubeNode) Start(master Master, finishedMsg string) {
 
 						n.neighbors[nbr].inputQ <- n.id
 
-						fromNode = <-n.inputQ
+						msg = <-n.inputQ
 
-						fmt.Println(n.id, "heard back from", fromNode+".")
+						fmt.Println(n.id, "heard back from", msg+".")
 					}
 
-					master.AcceptMessage(finishedMsg)
+					master.NodeFinished()
 
 				default:
 
-					fmt.Println(n.id, " heard from ", fromNode+". Responding.")
+					fmt.Println(n.id, " heard from ", msg+". Responding.")
 
 					for nbr := 0; nbr < n.neighborCount; nbr++ {
 
-						if n.neighbors[nbr].id == fromNode {
+						if n.neighbors[nbr].id == msg {
 
 							n.neighbors[nbr].inputQ <- n.id
 

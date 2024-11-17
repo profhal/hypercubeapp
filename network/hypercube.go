@@ -68,12 +68,12 @@ func CreateHypercube(dimension int) *Hypercube {
 // Runs the hypercube task.
 func (h *Hypercube) Touch(nodeId int) {
 
-	h.nodes[nodeId].inputQ <- "-1"
+	h.nodes[nodeId].inputQ <- "start"
 
 	<-h.inputQ
 
 }
 
-func (h *Hypercube) AcceptMessage(msg string) {
-	h.inputQ <- msg
+func (h *Hypercube) NodeFinished() {
+	h.inputQ <- "done"
 }
