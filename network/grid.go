@@ -30,10 +30,6 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 
 		grid.nodes = append(grid.nodes, make([]*node, 0, grid.colCount))
 
-	}
-
-	for r := range grid.nodes {
-
 		for c := 0; c < grid.colCount; c++ {
 
 			grid.nodes[r] = append(grid.nodes[r], new(node))
@@ -61,12 +57,12 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 			//
 			//                   ^
 			//                   |
-			//   colCount - 1 >  o---o---o---o---o---o
+			//   rowCount - 1 >  o---o---o---o---o---o
 			//                   |   |   |   |   |   |
 			//                   o---o---o---o---o---o
 			//                   |   |   |   |   |   |
 			//                   o---o---o---o---o---o->
-			//                                       ^ rowCount - 1
+			//                                       ^ colCount - 1
 			// Observe that
 			//     - the origin (0, 0) has no down or left
 			//     - the left side (0, x), x < rowCount-1, there is no left
