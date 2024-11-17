@@ -1,11 +1,13 @@
 package network
 
-import "strconv"
+import (
+	"strconv"
+)
 
 type Ring struct {
 	Master
 	nodeCount int
-	nodes     []*node
+	nodes     []*ringNode
 	inputQ    chan string
 }
 
@@ -18,19 +20,19 @@ func CreateRing(nodeCount int) *Ring {
 	ring.nodeCount = nodeCount
 	ring.inputQ = make(chan string)
 
-	ring.nodes = make([]*node, 0, ring.nodeCount)
+	ring.nodes = make([]*ringNode, 0, ring.nodeCount)
 
 	for n := 0; n < ring.nodeCount; n++ {
 
-		ring.nodes = append(ring.nodes, new(node))
+		ring.nodes = append(ring.nodes, new(ringNode))
 
 		ring.nodes[n].id = strconv.Itoa(n)
 
 		ring.nodes[n].neighborCount = 2
-		ring.nodes[n].neighbors = make([]*node, 2)
+		ring.nodes[n].neighbors = make([]*ringNode, 2)
 		ring.nodes[n].inputQ = make(chan string, 2)
 
-		ring.nodes[n].start(ring, "0")
+		ring.nodes[n].Start(ring, "0")
 
 	}
 
@@ -40,18 +42,18 @@ func CreateRing(nodeCount int) *Ring {
 
 		if n == 0 {
 
-			ring.nodes[n].neighbors[0] = ring.nodes[ring.nodeCount-1]
-			ring.nodes[n].neighbors[1] = ring.nodes[n+1]
+			ring.nodes[n].neighbors[ring_left] = ring.nodes[ring.nodeCount-1]
+			ring.nodes[n].neighbors[ring_right] = ring.nodes[n+1]
 
 		} else if n == ring.nodeCount-1 {
 
-			ring.nodes[n].neighbors[0] = ring.nodes[n-1]
-			ring.nodes[n].neighbors[1] = ring.nodes[0]
+			ring.nodes[n].neighbors[ring_left] = ring.nodes[n-1]
+			ring.nodes[n].neighbors[ring_right] = ring.nodes[0]
 
 		} else {
 
-			ring.nodes[n].neighbors[0] = ring.nodes[n-1]
-			ring.nodes[n].neighbors[1] = ring.nodes[n+1]
+			ring.nodes[n].neighbors[ring_left] = ring.nodes[n-1]
+			ring.nodes[n].neighbors[ring_right] = ring.nodes[n+1]
 
 		}
 
@@ -62,9 +64,9 @@ func CreateRing(nodeCount int) *Ring {
 }
 
 // Runs the grid task
-func (r *Ring) Touch(nodeNumber int) {
+func (r *Ring) Loop(startWith int, direction string) {
 
-	r.nodes[nodeNumber].inputQ <- "-1"
+	r.nodes[startWith].AcceptMessage(direction)
 
 	<-r.inputQ
 

@@ -11,7 +11,7 @@ type Hypercube struct {
 	Master
 	dimension int
 	nodeCount int
-	nodes     []*node
+	nodes     []*hypercubeNode
 	inputQ    chan string
 }
 
@@ -26,18 +26,18 @@ func CreateHypercube(dimension int) *Hypercube {
 	hypercube.nodeCount = int(math.Pow(2, float64(dimension)))
 	hypercube.inputQ = make(chan string)
 
-	hypercube.nodes = make([]*node, 0, hypercube.nodeCount)
+	hypercube.nodes = make([]*hypercubeNode, 0, hypercube.nodeCount)
 
 	for n := 0; n < hypercube.nodeCount; n++ {
 
-		hypercube.nodes = append(hypercube.nodes, new(node))
+		hypercube.nodes = append(hypercube.nodes, new(hypercubeNode))
 
 		hypercube.nodes[n].id = strconv.Itoa(n)
 		hypercube.nodes[n].neighborCount = hypercube.dimension
-		hypercube.nodes[n].neighbors = make([]*node, 0, hypercube.dimension)
+		hypercube.nodes[n].neighbors = make([]*hypercubeNode, 0, hypercube.dimension)
 		hypercube.nodes[n].inputQ = make(chan string, hypercube.dimension)
 
-		hypercube.nodes[n].start(hypercube, "0")
+		hypercube.nodes[n].Start(hypercube, "0")
 
 	}
 

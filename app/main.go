@@ -187,9 +187,21 @@ func doRing() {
 
 		} else {
 
+			direction := "undefined"
+
+			fmt.Print("Enter the direction to loop (\"left\" or \"right\"): ")
+			fmt.Scan(&direction)
+
+			for direction != "left" && direction != "right" {
+
+				fmt.Print("Try again. Enter the direction to loop (\"left\" or \"right\"): ")
+				fmt.Scan(&direction)
+
+			}
+
 			fmt.Println("Touching node " + strconv.Itoa(nodeToTouch) + " ...")
 
-			ring.Touch(nodeToTouch)
+			ring.Loop(nodeToTouch, direction)
 
 		}
 	}

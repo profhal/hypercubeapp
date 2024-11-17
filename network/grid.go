@@ -9,7 +9,7 @@ type Grid struct {
 	rowCount  int
 	colCount  int
 	nodeCount int
-	nodes     [][]*node
+	nodes     [][]*gridNode
 	inputQ    chan string
 }
 
@@ -24,23 +24,23 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 	grid.nodeCount = grid.rowCount * grid.colCount
 	grid.inputQ = make(chan string)
 
-	grid.nodes = make([][]*node, 0, grid.rowCount)
+	grid.nodes = make([][]*gridNode, 0, grid.rowCount)
 
 	for r := 0; r < grid.rowCount; r++ {
 
-		grid.nodes = append(grid.nodes, make([]*node, 0, grid.colCount))
+		grid.nodes = append(grid.nodes, make([]*gridNode, 0, grid.colCount))
 
 		for c := 0; c < grid.colCount; c++ {
 
-			grid.nodes[r] = append(grid.nodes[r], new(node))
+			grid.nodes[r] = append(grid.nodes[r], new(gridNode))
 
 			// node[r][c] is in position (c, r) in the grid.
 			grid.nodes[r][c].id = "(" + strconv.Itoa(c) + ", " + strconv.Itoa(r) + ")"
 			grid.nodes[r][c].neighborCount = 0
-			grid.nodes[r][c].neighbors = make([]*node, 4)
+			grid.nodes[r][c].neighbors = make([]*gridNode, 4)
 			grid.nodes[r][c].inputQ = make(chan string, 4)
 
-			grid.nodes[r][c].start(grid, "0")
+			grid.nodes[r][c].Start(grid, "0")
 
 		}
 	}
@@ -80,33 +80,33 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 
 					// (0, 0) has no down or left
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r+1][c] // up
+					grid.nodes[r][c].neighbors[grid_up] = grid.nodes[r+1][c] // up
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c+1] // right
+					grid.nodes[r][c].neighbors[grid_right] = grid.nodes[r][c+1] // right
 					grid.nodes[r][c].neighborCount++
 
 				} else if r < grid.rowCount-1 {
 
 					// 0 < x < rowCount-1 : (0, x) has no left
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r+1][c] // up
+					grid.nodes[r][c].neighbors[grid_up] = grid.nodes[r+1][c] // up
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c+1] // right
+					grid.nodes[r][c].neighbors[grid_right] = grid.nodes[r][c+1] // right
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r-1][c] // down
+					grid.nodes[r][c].neighbors[grid_down] = grid.nodes[r-1][c] // down
 					grid.nodes[r][c].neighborCount++
 
 				} else {
 
 					// (0, rowCount-1) has no up or left
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c+1] // right
+					grid.nodes[r][c].neighbors[grid_right] = grid.nodes[r][c+1] // right
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r-1][c] // down
+					grid.nodes[r][c].neighbors[grid_down] = grid.nodes[r-1][c] // down
 					grid.nodes[r][c].neighborCount++
 
 				}
@@ -117,33 +117,33 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 
 					// (colCount-1, 0) has no right or down
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c-1] // left
+					grid.nodes[r][c].neighbors[grid_left] = grid.nodes[r][c-1] // left
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r+1][c] // up
+					grid.nodes[r][c].neighbors[grid_up] = grid.nodes[r+1][c] // up
 					grid.nodes[r][c].neighborCount++
 
 				} else if r < grid.rowCount-1 {
 
 					// x < rowCount : (colCount, x) has no right
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c-1] // left
+					grid.nodes[r][c].neighbors[grid_left] = grid.nodes[r][c-1] // left
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r+1][c] // up
+					grid.nodes[r][c].neighbors[grid_up] = grid.nodes[r+1][c] // up
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r-1][c] // down
+					grid.nodes[r][c].neighbors[grid_down] = grid.nodes[r-1][c] // down
 					grid.nodes[r][c].neighborCount++
 
 				} else {
 
 					// (colCount-1, rowCount-1) has no up or right
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c-1] // left
+					grid.nodes[r][c].neighbors[grid_left] = grid.nodes[r][c-1] // left
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r-1][c] // down
+					grid.nodes[r][c].neighbors[grid_down] = grid.nodes[r-1][c] // down
 					grid.nodes[r][c].neighborCount++
 
 				}
@@ -156,13 +156,13 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 				//
 				if c < colCount-1 {
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c-1] // left
+					grid.nodes[r][c].neighbors[grid_left] = grid.nodes[r][c-1] // left
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r+1][c] // up
+					grid.nodes[r][c].neighbors[grid_up] = grid.nodes[r+1][c] // up
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c+1] // right
+					grid.nodes[r][c].neighbors[grid_right] = grid.nodes[r][c+1] // right
 					grid.nodes[r][c].neighborCount++
 
 				}
@@ -175,13 +175,13 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 
 					// 0 < x < colCount : (x, rowCount-1) has no up
 					//
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c-1] // left
+					grid.nodes[r][c].neighbors[grid_left] = grid.nodes[r][c-1] // left
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c+1] // right
+					grid.nodes[r][c].neighbors[grid_right] = grid.nodes[r][c+1] // right
 					grid.nodes[r][c].neighborCount++
 
-					grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r-1][c] // down
+					grid.nodes[r][c].neighbors[grid_down] = grid.nodes[r-1][c] // down
 					grid.nodes[r][c].neighborCount++
 
 				}
@@ -190,16 +190,16 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 
 				// We are somewhere in the interior of the grid. Full wiring.
 				//
-				grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c-1] // left
+				grid.nodes[r][c].neighbors[grid_left] = grid.nodes[r][c-1] // left
 				grid.nodes[r][c].neighborCount++
 
-				grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r+1][c] // up
+				grid.nodes[r][c].neighbors[grid_up] = grid.nodes[r+1][c] // up
 				grid.nodes[r][c].neighborCount++
 
-				grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r][c+1] // right
+				grid.nodes[r][c].neighbors[grid_right] = grid.nodes[r][c+1] // right
 				grid.nodes[r][c].neighborCount++
 
-				grid.nodes[r][c].neighbors[grid.nodes[r][c].neighborCount] = grid.nodes[r-1][c] // down
+				grid.nodes[r][c].neighbors[grid_down] = grid.nodes[r-1][c] // down
 				grid.nodes[r][c].neighborCount++
 
 			}
