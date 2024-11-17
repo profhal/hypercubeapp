@@ -136,29 +136,94 @@ func doGrid() {
 
 }
 
+func doRing() {
+
+	nodeCount := 0
+
+	fmt.Print("Enter the number nodes in the ring (> 0): ")
+	fmt.Scan(&nodeCount)
+
+	for nodeCount < 1 {
+
+		fmt.Println("Number of nodes must be positive.")
+		fmt.Print("Try again. Enter the number nodes in the ring (> 0): ")
+		fmt.Scan(&nodeCount)
+
+	}
+
+	fmt.Println()
+
+	fmt.Print("Building ring of length ", nodeCount, " ...")
+
+	start := time.Now()
+
+	ring := network.CreateRing(nodeCount)
+
+	elapsed := time.Since(start)
+
+	fmt.Println("It took", elapsed, "to build.")
+
+	fmt.Println()
+
+	nodeToTouch := 0
+
+	for nodeToTouch > -1 {
+
+		nodeToTouch = -1
+
+		fmt.Print("Enter would you like to touch (0 - " + strconv.Itoa(nodeCount-1) + ") or -1 to exit: ")
+		fmt.Scan(&nodeToTouch)
+
+		for nodeToTouch < -1 {
+
+			fmt.Print("Try again. Enter would you like to touch (0 - " + strconv.Itoa(nodeCount-1) + ") or -1 to exit: ")
+			fmt.Scan(&nodeToTouch)
+
+		}
+
+		if nodeToTouch == -1 {
+
+			break
+
+		} else {
+
+			fmt.Println("Touching node " + strconv.Itoa(nodeToTouch) + " ...")
+
+			ring.Touch(nodeToTouch)
+
+		}
+	}
+
+	fmt.Println()
+
+}
+
 func main() {
 
-	option := 0
+	option := 1
 
-	for option != 3 {
+	for option != 0 {
 
 		fmt.Println("Choose a configuration to build.")
+		fmt.Println("0. Quit")
 		fmt.Println("1. Hypercube")
 		fmt.Println("2. Grid")
-		fmt.Println("3. Quit")
+		fmt.Println("3. Ring")
 		fmt.Println("--------------------------------")
 		fmt.Print("Enter option: ")
 		fmt.Scan(&option)
 
 		switch option {
+		case 0:
+			fmt.Println()
+			fmt.Println("Goodbye.")
+			fmt.Println()
 		case 1:
 			doHypercube()
 		case 2:
 			doGrid()
 		case 3:
-			fmt.Println()
-			fmt.Println("Goodbye.")
-			fmt.Println()
+			doRing()
 		default:
 			fmt.Println()
 			fmt.Println("Invalid option. Try again.")

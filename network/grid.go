@@ -215,7 +215,7 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 // Runs the grid task
 func (g *Grid) Touch(row int, col int) {
 
-	g.nodes[col][row].inputQ <- "-1"
+	g.nodes[row][col].inputQ <- "-1"
 
 	<-g.inputQ
 
