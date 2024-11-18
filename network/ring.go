@@ -1,6 +1,8 @@
 package network
 
 import (
+	"fmt"
+	"math/rand"
 	"strconv"
 )
 
@@ -12,6 +14,8 @@ type Ring struct {
 }
 
 func CreateRing(nodeCount int) *Ring {
+
+	isUsed := make(map[int]bool)
 
 	ring := new(Ring)
 
@@ -26,10 +30,24 @@ func CreateRing(nodeCount int) *Ring {
 
 		ring.nodes = append(ring.nodes, new(ringNode))
 
-		ring.nodes[n].id = strconv.Itoa(n)
+		possibleId := rand.Intn(10 * ring.nodeCount)
+
+		_, ok := isUsed[possibleId]
+
+		for ok {
+
+			possibleId := rand.Intn(10 * ring.nodeCount)
+
+			_, ok = isUsed[possibleId]
+
+		}
+
+		isUsed[possibleId] = true
+
+		ring.nodes[n].id = strconv.Itoa(possibleId)
 
 		ring.nodes[n].neighborCount = 2
-		ring.nodes[n].inputQ = make(chan string, 2)
+		ring.nodes[n].inputQ = make(chan message, 2)
 
 		ring.nodes[n].Start(ring, "0")
 
@@ -65,7 +83,21 @@ func CreateRing(nodeCount int) *Ring {
 // Runs the grid task
 func (r *Ring) Loop(startWith int, direction string) {
 
-	r.nodes[startWith].AcceptMessage(direction)
+	r.nodes[startWith].AcceptMessage(message{direction, NETWORK_MASTER})
+
+	<-r.inputQ
+
+}
+
+func (r *Ring) RunElection() {
+
+	fmt.Println("Node IDs:")
+
+	for n := range r.nodes {
+		fmt.Println("   ", r.nodes[n].GetId())
+	}
+
+	r.nodes[0].AcceptMessage(message{"elect", NETWORK_MASTER})
 
 	<-r.inputQ
 

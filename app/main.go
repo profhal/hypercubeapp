@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hypercubeapp/network"
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"time"
@@ -112,7 +113,7 @@ func doGrid() {
 			fmt.Scan(&rowToTouch)
 			fmt.Scan(&colToTouch)
 
-			if (rowToTouch < -1 || rowToTouch > rows-1) || (colToTouch < 0 || colToTouch > cols-1) {
+			if (rowToTouch < -1 || rowToTouch > rows-1) || (colToTouch < -1 || colToTouch > cols-1) {
 
 				fmt.Println("Rows 0 -", rows-1, ":: Cols 0 -", cols-1)
 
@@ -124,7 +125,7 @@ func doGrid() {
 
 			break
 
-		} else if rowToTouch > 0 {
+		} else if rowToTouch >= 0 {
 
 			fmt.Println("Touching node (" + strconv.Itoa(rowToTouch) + ", " + strconv.Itoa(colToTouch) + ") ...")
 
@@ -166,45 +167,83 @@ func doRing() {
 
 	fmt.Println()
 
-	nodeToTouch := 0
+	keepGoing := true
 
-	for nodeToTouch > -1 {
+	for keepGoing {
 
-		nodeToTouch = -1
+		option := -1
 
-		fmt.Print("Enter would you like to touch (0 - " + strconv.Itoa(nodeCount-1) + ") or -1 to exit: ")
-		fmt.Scan(&nodeToTouch)
+		fmt.Println()
 
-		for nodeToTouch < -1 {
+		for option < 0 || option > 3 {
 
-			fmt.Print("Try again. Enter would you like to touch (0 - " + strconv.Itoa(nodeCount-1) + ") or -1 to exit: ")
-			fmt.Scan(&nodeToTouch)
+			fmt.Println("What would you like to do with the ring?")
+			fmt.Println("0. Quit (return to main menu)")
+			fmt.Println("1. Execute Loop")
+			fmt.Println("2. Execute Election")
+			fmt.Println("----------------------------------------")
+			fmt.Print("Enter option: ")
+			fmt.Scan(&option)
 
-		}
+			if option < 0 || option > 3 {
 
-		if nodeToTouch == -1 {
-
-			break
-
-		} else {
-
-			direction := "undefined"
-
-			fmt.Print("Enter the direction to loop (\"left\" or \"right\"): ")
-			fmt.Scan(&direction)
-
-			for direction != "left" && direction != "right" {
-
-				fmt.Print("Try again. Enter the direction to loop (\"left\" or \"right\"): ")
-				fmt.Scan(&direction)
+				fmt.Println()
+				fmt.Println("Invalid option:", strconv.Itoa(option)+". Try again.")
+				fmt.Println()
 
 			}
 
-			fmt.Println("Touching node " + strconv.Itoa(nodeToTouch) + " ...")
+		}
 
-			ring.Loop(nodeToTouch, direction)
+		switch option {
+		case 0:
+
+			keepGoing = false
+
+		case 1:
+
+			nodeToTouch := -1
+
+			fmt.Print("Enter would you like to touch (0 - " + strconv.Itoa(nodeCount-1) + ") or -1 to exit: ")
+			fmt.Scan(&nodeToTouch)
+
+			for nodeToTouch < -1 {
+
+				fmt.Print("Try again. Enter would you like to touch (0 - " + strconv.Itoa(nodeCount-1) + ") or -1 to exit: ")
+				fmt.Scan(&nodeToTouch)
+
+			}
+
+			if nodeToTouch == -1 {
+
+				break
+
+			} else {
+
+				direction := "undefined"
+
+				fmt.Print("Enter the direction to loop (\"left\" or \"right\"): ")
+				fmt.Scan(&direction)
+
+				for direction != "left" && direction != "right" {
+
+					fmt.Print("Try again. Enter the direction to loop (\"left\" or \"right\"): ")
+					fmt.Scan(&direction)
+
+				}
+
+				fmt.Println("Touching node " + strconv.Itoa(nodeToTouch) + " ...")
+
+				ring.Loop(nodeToTouch, direction)
+
+			}
+
+		case 2:
+
+			ring.RunElection()
 
 		}
+
 	}
 
 	fmt.Println()
@@ -231,6 +270,11 @@ func main() {
 	}
 
 	var option int
+
+	// This has to be called, but only once per run, as random is used by Ring (at least).
+	// This doesn't seem like a good way to go.
+	//
+	rand.Seed(time.Now().UnixNano())
 
 	for {
 

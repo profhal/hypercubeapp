@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-// var n Node = Node{5, make([]*Node, 0, 5)}
 type gridNode struct {
 	id            string
 	right         *gridNode
@@ -12,14 +11,14 @@ type gridNode struct {
 	left          *gridNode
 	down          *gridNode
 	neighborCount int
-	inputQ        chan string
+	inputQ        chan message
 }
 
 func (n *gridNode) GetId() string {
 	return n.id
 }
 
-func (n *gridNode) AcceptMessage(msg string) {
+func (n *gridNode) AcceptMessage(msg message) {
 	n.inputQ <- msg
 }
 
@@ -30,50 +29,63 @@ func (n *gridNode) Start(master Master, finishedMsg string) {
 		for {
 
 			select {
-			case fromNode := <-n.inputQ:
+			case msg := <-n.inputQ:
 
-				switch fromNode {
+				switch msg.message {
 				case "start":
 
-					fmt.Println(n.id, " initiaiting conversation...")
+					if msg.senderId == NETWORK_MASTER {
 
-					if n.right != nil {
-						n.right.inputQ <- n.id
-						fromNode = <-n.inputQ
-						fmt.Println(n.id, "heard back from", fromNode+".")
+						fmt.Println(n.id, " initiaiting conversation...")
+
+						if n.right != nil {
+							n.right.AcceptMessage(message{"hello", n.id})
+							responseMsg := <-n.inputQ
+							fmt.Println(n.id, "heard back from", responseMsg.senderId+".")
+						}
+
+						if n.up != nil {
+							n.up.AcceptMessage(message{"hello", n.id})
+							responseMsg := <-n.inputQ
+							fmt.Println(n.id, "heard back from", responseMsg.senderId+".")
+						}
+
+						if n.left != nil {
+							n.left.AcceptMessage(message{"hello", n.id})
+							responseMsg := <-n.inputQ
+							fmt.Println(n.id, "heard back from", responseMsg.senderId+".")
+						}
+
+						if n.down != nil {
+							n.down.AcceptMessage(message{"hello", n.id})
+							responseMsg := <-n.inputQ
+							fmt.Println(n.id, "heard back from", responseMsg.senderId+".")
+						}
+
+						master.NodeFinished()
+
 					}
 
-					if n.up != nil {
-						n.up.inputQ <- n.id
-						fromNode = <-n.inputQ
-						fmt.Println(n.id, "heard back from", fromNode+".")
-					}
+				case "hello":
 
-					if n.left != nil {
-						n.left.inputQ <- n.id
-						fromNode = <-n.inputQ
-						fmt.Println(n.id, "heard back from", fromNode+".")
-					}
+					fmt.Println(n.id, " heard from ", msg.senderId+". Responding.")
 
-					if n.down != nil {
-						n.down.inputQ <- n.id
-						fromNode = <-n.inputQ
-						fmt.Println(n.id, "heard back from", fromNode+".")
-					}
-					master.NodeFinished()
+					if n.right != nil && n.right.id == msg.senderId {
 
-				default:
+						n.right.AcceptMessage(message{"", n.id})
 
-					fmt.Println(n.id, " heard from ", fromNode+". Responding.")
+					} else if n.up != nil && n.up.id == msg.senderId {
 
-					if n.right != nil && n.right.id == fromNode {
-						n.right.inputQ <- n.id
-					} else if n.up != nil && n.up.id == fromNode {
-						n.up.inputQ <- n.id
-					} else if n.left != nil && n.left.id == fromNode {
-						n.left.inputQ <- n.id
-					} else if n.down != nil && n.down.id == fromNode {
-						n.down.inputQ <- n.id
+						n.up.AcceptMessage(message{"", n.id})
+
+					} else if n.left != nil && n.left.id == msg.senderId {
+
+						n.left.AcceptMessage(message{"", n.id})
+
+					} else if n.down != nil && n.down.id == msg.senderId {
+
+						n.down.AcceptMessage(message{"", n.id})
+
 					}
 
 				}

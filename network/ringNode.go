@@ -2,23 +2,21 @@ package network
 
 import (
 	"fmt"
-	"strings"
 )
 
-// var n Node = Node{5, make([]*Node, 0, 5)}
 type ringNode struct {
 	id            string
 	left          *ringNode
 	right         *ringNode
 	neighborCount int
-	inputQ        chan string
+	inputQ        chan message
 }
 
 func (n *ringNode) GetId() string {
 	return n.id
 }
 
-func (n *ringNode) AcceptMessage(msg string) {
+func (n *ringNode) AcceptMessage(msg message) {
 	n.inputQ <- msg
 }
 
@@ -31,47 +29,84 @@ func (n *ringNode) Start(master Master, finishedMsg string) {
 			select {
 			case msg := <-n.inputQ:
 
-				switch msg {
+				switch msg.message {
 				case "left":
 
-					fmt.Println(n.id, "starting left-wise loop...")
+					switch msg.senderId {
+					case NETWORK_MASTER:
 
-					n.left.inputQ <- "left " + n.id
+						fmt.Println(n.id, "starting left-wise loop...")
 
-					<-n.inputQ
+						n.left.AcceptMessage(message{"left", n.id})
 
-					master.NodeFinished()
+						<-n.inputQ
+
+						master.NodeFinished()
+
+					default:
+
+						fmt.Println(n.id, "heard from", msg.senderId)
+
+						n.left.AcceptMessage(message{"left", n.id})
+
+					}
 
 				case "right":
 
-					fmt.Println(n.id, "starting right-wise loop...")
+					switch msg.senderId {
+					case NETWORK_MASTER:
 
-					n.right.inputQ <- "right " + n.id
+						fmt.Println(n.id, "starting right-wise loop...")
 
-					<-n.inputQ
+						n.right.AcceptMessage(message{"right", n.id})
 
-					master.NodeFinished()
+						<-n.inputQ
 
-				default:
+						master.NodeFinished()
 
-					// If it's not just "left" or "right" it will be "left x" or right x" where x is the
-					// node sending the message. This means we should pass left - or right - and not
-					// wait for a response.
-					directionAndSender := strings.Split(msg, " ")
+					default:
 
-					fmt.Println(n.id, " heard from", directionAndSender[1]+". Responding.")
+						n.right.AcceptMessage(message{"right", n.id})
 
-					if directionAndSender[0] == "left" {
+					}
 
-						n.left.inputQ <- "left " + n.id
+				case "elect":
 
-					} else {
+					switch msg.senderId {
+					case NETWORK_MASTER:
 
-						n.right.inputQ <- "right " + n.id
+						fmt.Println("Starting election...")
+
+						n.right.AcceptMessage(message{"elect", n.id})
+
+					default:
+
+						if msg.senderId == n.id {
+
+							fmt.Println("The ring has elected: ", n.id)
+
+							fmt.Println()
+
+							master.NodeFinished()
+
+						} else {
+
+							if msg.senderId < n.id {
+
+								n.right.AcceptMessage(message{"elect", n.id})
+
+							} else {
+
+								n.right.AcceptMessage(message{"elect", msg.senderId})
+
+							}
+
+						}
 
 					}
 
 				}
+
 			}
 
 		}

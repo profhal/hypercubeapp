@@ -19,7 +19,6 @@ type Hypercube struct {
 func CreateHypercube(dimension int) *Hypercube {
 
 	// Prep the hypercube.
-	//
 	hypercube := new(Hypercube)
 
 	hypercube.dimension = dimension
@@ -35,14 +34,13 @@ func CreateHypercube(dimension int) *Hypercube {
 		hypercube.nodes[n].id = strconv.Itoa(n)
 		hypercube.nodes[n].neighborCount = hypercube.dimension
 		hypercube.nodes[n].neighbors = make([]*hypercubeNode, 0, hypercube.dimension)
-		hypercube.nodes[n].inputQ = make(chan string, hypercube.dimension)
+		hypercube.nodes[n].inputQ = make(chan message, hypercube.dimension)
 
 		hypercube.nodes[n].Start(hypercube, "0")
 
 	}
 
 	// Wire hypercube together.
-	//
 	powersOfTwo := []int{}
 
 	for d := 0; d < hypercube.dimension; d++ {
@@ -68,7 +66,7 @@ func CreateHypercube(dimension int) *Hypercube {
 // Runs the hypercube task.
 func (h *Hypercube) Touch(nodeId int) {
 
-	h.nodes[nodeId].inputQ <- "start"
+	h.nodes[nodeId].AcceptMessage(message{"contact neighbors", NETWORK_MASTER})
 
 	<-h.inputQ
 

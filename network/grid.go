@@ -37,7 +37,7 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 			// node[r][c] is in position (c, r) in the grid.
 			grid.nodes[r][c].id = "(" + strconv.Itoa(c) + ", " + strconv.Itoa(r) + ")"
 			grid.nodes[r][c].neighborCount = 0
-			grid.nodes[r][c].inputQ = make(chan string, 4)
+			grid.nodes[r][c].inputQ = make(chan message, 4)
 
 			grid.nodes[r][c].Start(grid, "0")
 
@@ -190,7 +190,7 @@ func CreateGrid(rowCount int, colCount int) *Grid {
 // Runs the grid task
 func (g *Grid) Touch(row int, col int) {
 
-	g.nodes[row][col].inputQ <- "start"
+	g.nodes[row][col].AcceptMessage(message{"start", NETWORK_MASTER})
 
 	<-g.inputQ
 
