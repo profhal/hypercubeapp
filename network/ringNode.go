@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type ringNode struct {
@@ -91,7 +92,10 @@ func (n *ringNode) Start(master Master, finishedMsg string) {
 
 						} else {
 
-							if msg.senderId < n.id {
+							senderId, _ := strconv.Atoi(msg.senderId)
+							localId, _ := strconv.Atoi(msg.senderId)
+
+							if senderId < localId {
 
 								n.right.AcceptMessage(message{"elect", n.id})
 

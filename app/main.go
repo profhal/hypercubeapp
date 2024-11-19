@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"hypercubeapp/network"
 	"math"
-	"math/rand"
 	"os"
 	"strconv"
 	"time"
@@ -270,11 +269,6 @@ func main() {
 	}
 
 	var option int
-
-	// This has to be called, but only once per run, as random is used by Ring (at least).
-	// This doesn't seem like a good way to go.
-	//
-	rand.Seed(time.Now().UnixNano())
 
 	for {
 
