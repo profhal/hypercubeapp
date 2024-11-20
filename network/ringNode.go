@@ -93,7 +93,7 @@ func (n *ringNode) Start(master Master, finishedMsg string) {
 						} else {
 
 							senderId, _ := strconv.Atoi(msg.senderId)
-							localId, _ := strconv.Atoi(msg.senderId)
+							localId, _ := strconv.Atoi(n.id)
 
 							if senderId < localId {
 
