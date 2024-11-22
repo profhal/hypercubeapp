@@ -5,13 +5,13 @@ import (
 )
 
 type gridNode struct {
-	id            string
-	right         *gridNode
-	up            *gridNode
-	left          *gridNode
-	down          *gridNode
-	neighborCount int
-	inputQ        chan message
+	Node
+	id     string
+	right  *gridNode
+	up     *gridNode
+	left   *gridNode
+	down   *gridNode
+	inputQ chan message
 }
 
 func (n *gridNode) GetId() string {

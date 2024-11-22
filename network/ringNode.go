@@ -6,6 +6,7 @@ import (
 )
 
 type ringNode struct {
+	Node
 	id            string
 	left          *ringNode
 	right         *ringNode

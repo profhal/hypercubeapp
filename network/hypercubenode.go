@@ -5,6 +5,7 @@ import (
 )
 
 type hypercubeNode struct {
+	Node
 	id            string
 	neighbors     []*hypercubeNode
 	neighborCount int
